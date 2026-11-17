@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><title>Duelo de Gramática</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eceeff;--ink:#1b1b3a;--card:#fff;--muted:#575a85;--ok:#0f8a4e;--okbg:#d9f7e6;--bad:#c9303a;--badbg:#ffe0e1;--p0:#ff5c5c;--p1:#2f6bff;--p2:#17b26a;--p3:#ffb400;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14152b;--ink:#f1f2ff;--card:#202244;--muted:#a6a9d8;--ok:#5be39b;--okbg:#12382a;--bad:#ff8a90;--badbg:#44202a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14152b;--ink:#f1f2ff;--card:#202244;--muted:#a6a9d8;--ok:#5be39b;--okbg:#12382a;--bad:#ff8a90;--badbg:#44202a;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:600 17px/1.5 Nunito,system-ui,sans-serif;min-height:100vh}
+h1,h2,h3,.sent,.chip b,button{font-family:Fredoka,Nunito,system-ui,sans-serif}
+#app{max-width:760px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:3px solid var(--ink);border-radius:18px;box-shadow:6px 6px 0 var(--ink);padding:22px;margin:16px 0}
+h1{font-size:clamp(34px,8vw,52px);line-height:1.05;margin:8px 0 6px;letter-spacing:-.5px}
+h2{margin:0 0 10px;font-size:22px}
+p.lead{color:var(--muted);margin:0 0 6px}
+.seg{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 16px}
+button{cursor:pointer;border:3px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 18px;font-size:18px;font-weight:700;box-shadow:3px 3px 0 var(--ink);transition:transform .08s,box-shadow .08s}
+button:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+button.sel{background:var(--ink);color:var(--bg)}
+button.big{background:var(--p1);color:#fff;font-size:22px;padding:12px 26px;width:100%}
+:focus-visible{outline:4px solid var(--p3);outline-offset:2px}
+input{font:700 20px Nunito,sans-serif;width:100%;padding:11px 14px;border:3px solid var(--ink);border-radius:12px;background:var(--bg);color:var(--ink)}
+.names{display:grid;gap:10px;margin-bottom:18px}
+.names label{display:flex;align-items:center;gap:10px}
+.dot{width:20px;height:20px;border-radius:50%;border:3px solid var(--ink);background:var(--c);flex:none}
+.sb{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;padding:8px 0;background:var(--bg)}
+.chip{display:flex;align-items:center;gap:8px;padding:6px 10px;border:3px solid var(--ink);border-radius:12px;background:var(--card);min-width:0}
+.chip b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.chip em{font:700 20px Fredoka,sans-serif;font-style:normal}
+.chip.on{background:var(--c);box-shadow:4px 4px 0 var(--ink);transform:translate(-1px,-1px);color:#1b1b3a}
+.chip.on .dot{background:#fff}
+.meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:15px}
+.tag{background:var(--c);color:#1b1b3a;border:2px solid var(--ink);border-radius:99px;padding:1px 12px;font-weight:800}
+.sent{font-size:clamp(24px,5.5vw,34px);line-height:1.5;font-weight:500;margin:18px 0 10px}
+.blank{display:inline-block;min-width:3.2em;height:1.1em;vertical-align:-.15em;border-bottom:5px solid var(--c);animation:pulse 1.4s ease-in-out infinite}
+.sent i{font-style:normal;color:var(--muted);font-size:.7em}
+@keyframes pulse{50%{border-bottom-color:transparent}}
+@media(prefers-reduced-motion:reduce){.blank{animation:none}button{transition:none}}
+.hint{background:var(--bg);border-radius:12px;padding:10px 14px;margin:0 0 16px;font-size:16px}
+.row{display:flex;gap:10px}.row button{background:var(--c);color:#1b1b3a;white-space:nowrap}
+.fb{border:3px solid var(--ink);border-radius:14px;padding:14px 16px}
+.fb.ok{background:var(--okbg)}.fb.bad{background:var(--badbg)}
+.fb h3{margin:0 0 4px;font-size:24px}.fb.ok h3{color:var(--ok)}.fb.bad h3{color:var(--bad)}
+.fb p{margin:6px 0}.fb .full{font-size:20px}.fb button{margin-top:8px;width:100%;background:var(--ink);color:var(--bg)}
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:10px;margin:20px 0 10px}
+.pod{flex:1;max-width:170px;text-align:center}
+.pod .bar{background:var(--c);border:3px solid var(--ink);border-radius:12px 12px 0 0;display:flex;align-items:flex-start;justify-content:center;font:700 34px Fredoka,sans-serif;padding-top:6px;color:#1b1b3a}
+.pod b{display:block;overflow:hidden;text-overflow:ellipsis;font-family:Fredoka,sans-serif}
+.tbl{width:100%;border-collapse:collapse}.tbl td,.tbl th{padding:8px 6px;text-align:left;border-bottom:2px solid var(--bg)}
+.tbl th{color:var(--muted);font-size:14px}
+.tm{display:flex;align-items:center;gap:12px;margin-top:14px}
+.tb{flex:1;height:16px;border:3px solid var(--ink);border-radius:99px;overflow:hidden;background:var(--bg)}
+.tb i{display:block;height:100%;width:100%;background:var(--c)}
+.tb i.low{background:var(--bad)}
+.tm b{font:700 28px Fredoka,sans-serif;min-width:2ch;text-align:right}
+.tm b.low{color:var(--bad);animation:blink .5s steps(2) infinite}
+@keyframes blink{50%{opacity:.35}}
+@media(prefers-reduced-motion:reduce){.tm b.low{animation:none}}
+@media(max-width:480px){.row{flex-direction:column}}
+</style></head><body><div id="app"></div>
+<script>
+const $=s=>document.querySelector(s),pick=a=>a[Math.floor(Math.random()*a.length)];
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const norm=s=>s.toLowerCase().trim().replace(/[’‘`]/g,"'").replace(/\s+/g," ").replace(/\bcan't\b|\bcan not\b|\bcannot\b/g,"cannot").replace(/won't/g,"will not").replace(/n't\b/g," not");
+const low=s=>s.replace(/^(A|An|The|This|That|Our|My)\b/,m=>m.toLowerCase());
+const two=a=>{const x=pick(a);let y;do y=pick(a);while(y==x);return[x,y]};
+/* ---------- BANCOS DE DATOS ---------- */
+const V="play|plays|playing|played|football;eat|eats|eating|ate|pizza;buy|buys|buying|bought|a new jacket;see|sees|seeing|saw|a funny movie;go|goes|going|went|to the market;watch|watches|watching|watched|a documentary;write|writes|writing|wrote|a long email;drink|drinks|drinking|drank|orange juice;clean|cleans|cleaning|cleaned|the kitchen;cook|cooks|cooking|cooked|dinner;study|studies|studying|studied|for the exam;visit|visits|visiting|visited|her grandparents;take|takes|taking|took|a long shower;make|makes|making|made|a chocolate cake;paint|paints|painting|painted|the fence;sing|sings|singing|sang|a pop song;swim|swims|swimming|swam|in the lake;run|runs|running|ran|in the park;wash|washes|washing|washed|the car;meet|meets|meeting|met|new friends;drive|drives|driving|drove|to work;call|calls|calling|called|his cousin;help|helps|helping|helped|the teacher;open|opens|opening|opened|the window;bake|bakes|baking|baked|cookies;ride|rides|riding|rode|a bike;learn|learns|learning|learned|Spanish;dance|dances|dancing|danced|at the party;build|builds|building|built|a sandcastle;find|finds|finding|found|a lost wallet;sleep|sleeps|sleeping|slept|for ten hours;wear|wears|wearing|wore|a red hat;catch|catches|catching|caught|the bus;teach|teaches|teaching|taught|math;fix|fixes|fixing|fixed|the old computer".split(";").map(x=>x.split("|"));
+const SUBJ="I|0|am;You|0|are;We|0|are;They|0|are;My parents|0|are;The children|0|are;He|1|is;She|1|is;Tom|1|is;My sister|1|is;Our teacher|1|is".split(";").map(x=>x.split("|"));
+const ADJ="tall s P;young s P;old s P;strong s P;fast s PO;funny y P;happy y P;busy y P;thin d P;nice e P;interesting l PG;boring l G;good i G;bad i G;popular l G;famous l G;slow s O;heavy y O;light s O;big d ON;small s O;large e ON;safe e O;noisy y O;comfortable l O;expensive l O;cheap s O;long s O;dangerous l O;cold s N;hot d N;warm s N;beautiful l N;far i L".split(";").map(x=>x.split(" "));
+const GR={P:["Tom","Lucy","Ana","My brother","Our teacher","My uncle","Sara","Leo"],O:["A car","A bike","A truck","A bus","A train","A plane","A boat","A motorbike"],G:["This movie","That book","The new game","This song","That show","Our hotel"],N:["Canada","Argentina","Egypt","Iceland","Brazil","Norway","Spain","Mexico"],L:["The beach","The park","The school","The museum","The market","The airport"]};
+const IRR={good:["better","best"],bad:["worse","worst"],far:["further","furthest"]};
+const forms=(a,t)=>t=="i"?IRR[a]:t=="l"?["more "+a,"most "+a]:t=="s"?[a+"er",a+"est"]:t=="d"?[a+a.slice(-1)+"er",a+a.slice(-1)+"est"]:t=="y"?[a.slice(0,-1)+"ier",a.slice(0,-1)+"iest"]:[a+"r",a+"st"];
+const TH={s:["adjetivo corto: añade -er / -est","es un adjetivo corto: se añade -"],d:["termina en consonante-vocal-consonante: se duplica la última letra","termina en consonante-vocal-consonante, así que se duplica la última letra y se añade -"],y:["termina en -y: la y cambia a i","termina en -y: la y cambia a i y se añade -"],e:["termina en -e: solo añade -r / -st","termina en -e, por eso solo se añade -"],l:["adjetivo largo: usa more / most","es un adjetivo largo: se usa "],i:["forma irregular: hay que memorizarla","tiene forma irregular: "]};
+const PREFS=[["love","loves","+"],["enjoy","enjoys","+"],["don’t mind","doesn’t mind","0"],["can’t stand","can’t stand","-"],["hate","hates","-"],["don’t like","doesn’t like","-"]];
+const FEEL={"+":"positivo (le gusta mucho)","0":"neutro (no le molesta)","-":"negativo (no le gusta)"};
+const PSM=[" every day"," every morning"," on Sundays"," every weekend"," at night"," after school"];
+const PAM=["yesterday","last week","last night","two days ago","last summer","last weekend","last year","in 2019","on Monday morning"];
+/* ---------- GENERADORES ---------- */
+const sl=s=>low(s.replace(/^(He|She|We|They|You)\b/,m=>m.toLowerCase()));
+const DAYADJ=["hot","cold","happy","busy","good","bad","long","funny","boring","interesting","warm"].map(a=>ADJ.find(x=>x[0]==a));
+const ADV="fast/s/running|riding a bike|swimming|driving;hard/s/studying|working|training|playing;slow/s/walking|driving|eating|reading;late/e/arriving|leaving|working;early/y/arriving|leaving|waking up;high/s/jumping|flying;loud/s/singing|talking|playing the drums".split(";").map(x=>{const[a,t,r]=x.split("/");return[a,t,r.split("|")]});
+const W6=[["loved","+"],["enjoyed","+"],["didn’t mind","0"],["couldn’t stand","-"],["hated","-"],["didn’t like","-"]];
+const BUY="buy|buys|bought;choose|chooses|chose;take|takes|took;find|finds|found;wear|wears|wore".split(";").map(x=>x.split("|"));
+const SH=[["cheap","s"],["big","d"],["small","s"],["light","s"],["expensive","l"]],NN=["jacket","hat","bag","phone","bike"];
+const mk=(cat,s,b,a,hint,ex,ac)=>({cat,s,b,a,hint,ex,ac:ac||[a]});
+const G=[
+function comp(){const[a,t,g]=pick(ADJ),Z=pick(g.split("")),[x,y]=two(GR[Z]),f=forms(a,t)[0];
+ const s=Z=="L"?`${x} is ___ from my house than ${low(y)}.`:`${x} is ___ than ${low(y)}.`;
+ return mk("Comparativos",s,a,f,"Compara dos elementos (than). Este "+TH[t][0]+".",`“${a}” ${TH[t][1]}${t=="l"||t=="i"?f+" than.":f.slice(-2)+" + than → "+f+" than."}`)},
+function sup(){const[a,t,g]=pick(ADJ),Z=pick(g.split("")),x=pick(GR[Z]),f=forms(a,t)[1];
+ const s={P:`${x} is the ___ person in our class.`,O:`Of all these vehicles, ${low(x)} is the ___.`,G:`In my opinion, ${low(x)} is the ___ one of all.`,N:`Of the countries we studied, ${x} is the ___.`,L:`Of these places, ${low(x)} is the ___ from my house.`}[Z];
+ const b=t=="s"||t=="d"||t=="y"||t=="e"?"-est":"";
+ return mk("Superlativos",s,a,f,"Destaca un elemento dentro de un grupo (the + superlativo). Este "+TH[t][0].replace("-er / -est","-est").replace("-r / -st","-st")+".",`Con “the” se usa el superlativo de “${a}”: ${f}.`)},
+function like(){const S=pick(SUBJ),th=+S[1],P=pick(PREFS),v=pick(V),pf=P[th],c=v[4];
+ if(Math.random()<.78)return mk("Likes & Dislikes",`${S[0]} ${pf} ___ ${c}.`,v[0],v[2],"Después de love, enjoy, hate, don’t mind, can’t stand o don’t like se usa el verbo + -ing.",`Tras “${pf}” el verbo va en gerundio (-ing): ${v[2]}.`);
+ const ac=PREFS.filter(p=>p[2]==P[2]).map(p=>p[th]);
+ return mk("Likes & Dislikes",`${S[0]} ___ ${v[2]} ${c}.`,null,pf,"Falta la expresión de preferencia. Sentimiento: "+FEEL[P[2]]+". Cuida la tercera persona (doesn’t / -s).",`Con ${S[0]} se usa “${pf}” + verbo-ing (otras opciones válidas: ${ac.join(", ")}).`,ac)},
+function ps(){const S=pick(SUBJ),th=+S[1],v=pick(V),m=pick(PSM),neg=Math.random()<.3,aux=th?"doesn’t":"don’t";
+ return neg?mk("Present Simple",`${S[0]} ${aux} ___ ${v[4]}${m}.`,v[0],v[0],"Rutina o hecho (negativo). Después de don’t / doesn’t el verbo va en forma base.",`Tras “${aux}” el verbo no lleva -s: ${v[0]}.`):
+ mk("Present Simple",`${S[0]} ___ ${v[4]}${m}.`,v[0],th?v[1]:v[0],th?"Rutina o hecho. Tercera persona (he/she/it): añade -s / -es / -ies.":"Rutina o hecho. Con I, you, we, they el verbo queda en forma base.",th?`Con ${S[0]} (he/she/it) el verbo lleva -s/-es/-ies: ${v[1]}.`:`Con ${S[0]} el verbo queda en forma base: ${v[0]}.`)},
+function pc(){const S=pick(SUBJ),v=pick(V),s=Math.random()<.5?`Look! ${S[0]} ${S[2]} ___ ${v[4]}.`:`${S[0]} ${S[2]} ___ ${v[4]} ${pick(["right now","at the moment","now"])}.`;
+ return mk("Present Continuous",s,v[0],v[2],"Acción que ocurre ahora: am / is / are + verbo-ing.",`Acción en progreso: ${S[2]} + verbo-ing → ${v[2]}.`)},
+function past(){const S=pick(SUBJ),v=pick(V),m=pick(PAM),reg=/ed$/.test(v[3]);
+ return mk("Past Simple",`${S[0]} ___ ${v[4]} ${m}.`,v[0],v[3],`Acción terminada (“${m}”). ${reg?"Verbo regular: añade -ed (o -d).":"Verbo irregular: tiene forma propia."}`,reg?`“${m}” indica pasado; “${v[0]}” es regular: ${v[0]} + -ed → ${v[3]}.`:`“${m}” indica pasado; “${v[0]}” es irregular: su pasado es ${v[3]}.`,v[3]=="learned"?["learned","learnt"]:[v[3]])},
+function pastSup(){const[a,t]=pick(DAYADJ),f=forms(a,t)[1];
+ return mk("Past Simple + Superlativo",`${pick(["Yesterday","Last Saturday","My birthday last year","Last summer"])} was the ___ day of my life.`,a,f,"Pasado simple (“was”) + superlativo: the + adjetivo superlativo. Este "+TH[t][0]+".",`“was” indica pasado y “the” pide el superlativo de “${a}”: ${f}.`)},
+function pastComp(){const sb=pick([["my brother","was"],["Tom","was"],["my cousins","were"],["we","were"],["Lucy","was"],["I","was"]]),[a,t]=pick(ADJ.filter(x=>x[2].includes("P"))),f=forms(a,t)[0],o=sb[0]=="I"||sb[0]=="we"?"my sister":"me",top=pick(["Last year, ","Two years ago, ","When we were kids, "]);
+ if(Math.random()<.4)return mk("Past Simple + Comparativo",`${top}${sb[0]} ___ ${f} than ${o}.`,null,sb[1],"Pasado de to be: was (I, he, she, it) / were (you, we, they). Hay una comparación con “than”.",`Es pasado y el sujeto es “${sb[0]}”: ${sb[1]}.`);
+ return mk("Past Simple + Comparativo",`${top}${sb[0]} ${sb[1]} ___ than ${o}.`,a,f,"Pasado simple con to be + comparativo (than). Este "+TH[t][0]+".",`“${a}” ${TH[t][1]}${t=="l"||t=="i"?f+" than.":f.slice(-2)+" + than → "+f+" than."}`)},
+function pastCompObj(){const[a,t]=pick(ADJ.filter(x=>x[2].includes("O")&&x[1]!="l")),f=forms(a,t)[0],v=pick([["buy","bought"],["find","found"],["drive","drove"],["build","built"],["sell","sold"],["see","saw"]]),S=pick(SUBJ),n=pick(["car","bike","truck","boat","motorbike"]);
+ return mk("Past Simple + Comparativo",`${S[0]} ___ a ${f} ${n} ${pick(["last month","last year","two weeks ago","yesterday"])}.`,v[0],v[1],"Pasado simple: hay un marcador de pasado (last month, ago...). Falta el verbo.",`El marcador indica pasado; “${v[0]}” es irregular: su pasado es ${v[1]}. (“${f}” es el comparativo de ${a}.)`)},
+function pcComp(){
+ if(Math.random()<.35){const a=pick(["cold","hot","warm"]),f=forms(a,a=="hot"?"d":"s")[0];
+  if(Math.random()<.4)return mk("Present Continuous + Comparativo",`Right now, the weather is ___ ${f} than yesterday.`,"get","getting","Presente progresivo para un cambio en curso: am / is / are + -ing.",`Cambio que ocurre ahora: is + getting → “getting ${f}”.`);
+  return mk("Present Continuous + Comparativo",`Right now, the weather is getting ___ than yesterday.`,a,f,"Presente progresivo (getting) + comparativo (than).",`“getting” + comparativo de “${a}”: ${f} than yesterday.`)}
+ const[ad,t,vs]=pick(ADV),S=pick(SUBJ),ing=pick(vs),f=forms(ad,t)[0];
+ return mk("Present Continuous + Comparativo",`Look! ${S[0]} ${S[2]} ${ing} ___ than the others.`,ad,f,"Presente progresivo (am/is/are + -ing) y comparación con “than”. Compara cómo se hace la acción.",`Se compara la acción con “than”: ${ad} → ${f}.`)},
+function supBuy(){const S=pick(SUBJ),th=+S[1],v=pick(BUY),[a,t]=pick(SH),f=forms(a,t)[1],n=pick(NN),past=Math.random()<.5,m=past?pick(["last Saturday","yesterday","last month"]):pick(["every Saturday","every month","every weekend"]),ans=past?v[2]:th?v[1]:v[0];
+ return mk(past?"Past Simple + Superlativo":"Present Simple + Superlativo",`${S[0]} ___ the ${f} ${n} in the shop ${m}.`,v[0],ans,past?`Pasado simple (“${m}”): verbo irregular.`:`Presente simple (“${m}”): rutina. ${th?"Tercera persona: añade -s/-es.":"Forma base."}`,past?`“${m}” indica pasado; el pasado de “${v[0]}” es ${v[2]}.`:`Rutina en presente: ${th?"con "+S[0]+" (he/she/it) el verbo lleva -s/-es: "+v[1]:"con "+S[0]+" va la forma base: "+v[0]}.`)},
+function likeT(){const S=pick(SUBJ),th=+S[1],v=pick(V),k=Math.floor(Math.random()*3),c=v[4],n=sl(S[0]);
+ if(k==2){const pos=Math.random()<.5,be=S[2],a=pos?be+" enjoying":(be=="am"?"am not":be+"n’t")+" enjoying";
+  return mk("Present Continuous + Likes",`${S[0]} ___ ${v[2]} ${c} at the moment.`,null,a,"Presente progresivo de una preferencia: am / is / are (+ not) + enjoying. Sentimiento ahora: "+(pos?"positivo.":"negativo."),`Acción en este momento: ${be} ${pos?"":"not "}+ enjoying → ${a}.`)}
+ if(k==0){const P=pick(W6),top=pick(["When I was a kid,","Years ago,","Last year,","When we were young,"]);
+  if(Math.random()<.65){const ac=W6.filter(p=>p[1]==P[1]).map(p=>p[0]);
+   return mk("Past Simple + Likes",`${top} ${n} ___ ${v[2]} ${c}.`,null,P[0],"Pasado simple de una preferencia. Sentimiento: "+FEEL[P[1]]+". En pasado: -ed, didn’t o couldn’t.",`Es pasado: “${P[0]}” + verbo-ing (válidas: ${ac.join(", ")}).`,ac)}
+  return mk("Past Simple + Likes",`${top} ${n} ${P[0]} ___ ${c}.`,v[0],v[2],"Tras una preferencia en pasado el verbo va en -ing.",`Tras “${P[0]}” el verbo lleva -ing: ${v[2]}.`)}
+ const P=pick(PREFS),m=pick(["Nowadays,","These days,","Usually,"]);
+ if(Math.random()<.65){const ac=PREFS.filter(p=>p[2]==P[2]).map(p=>p[th]);
+  return mk("Present Simple + Likes",`${m} ${n} ___ ${v[2]} ${c}.`,null,P[th],"Presente simple de una preferencia. Sentimiento: "+FEEL[P[2]]+". Cuida la 3ª persona (doesn’t / -s).",`Con ${S[0]} en presente: “${P[th]}” + verbo-ing (válidas: ${ac.join(", ")}).`,ac)}
+ return mk("Present Simple + Likes",`${m} ${n} ${P[th]} ___ ${c}.`,v[0],v[2],"Tras una preferencia en presente el verbo va en -ing.",`Tras “${P[th]}” el verbo lleva -ing: ${v[2]}.`)}
+];
+/* ---------- ESTADO ---------- */
+let S={n:2,R:5,T:25,names:["","","",""]},st;
+const app=$("#app");
+const cols=["--p0","--p1","--p2","--p3"];
+function setup(){
+ app.innerHTML=`<h1>Duelo de Gramática</h1><p class="lead">Juego para 2 a 4 personas en una sola pantalla: comparativos, superlativos, likes &amp; dislikes y tiempos verbales.</p>
+ <div class="card"><h2>Jugadores</h2><div class="seg">${[2,3,4].map(n=>`<button class="${S.n==n?"sel":""}" onclick="setN(${n})">${n}</button>`).join("")}</div>
+ <div class="names">${[...Array(S.n)].map((_,i)=>`<label><span class="dot" style="--c:var(${cols[i]})"></span><input id="n${i}" maxlength="14" placeholder="Jugador ${i+1}" value="${esc(S.names[i])}"></label>`).join("")}</div>
+ <h2>Rondas por jugador</h2><div class="seg">${[5,10,15].map(r=>`<button class="${S.R==r?"sel":""}" onclick="setR(${r})">${r}</button>`).join("")}</div>
+ <h2>Tiempo por turno</h2><div class="seg">${[15,25,40,0].map(s=>`<button class="${S.T==s?"sel":""}" onclick="setT(${s})">${s?s+" s":"Sin límite"}</button>`).join("")}</div>
+ <button class="big" onclick="start()">Empezar partida</button></div>`}
+function saveNames(){for(let i=0;i<S.n;i++){const e=$("#n"+i);if(e)S.names[i]=e.value}}
+function setN(n){saveNames();S.n=n;setup()}
+function setR(r){saveNames();S.R=r;setup()}
+function setT(s){saveNames();S.T=s;setup()}
+function start(){saveNames();
+ st={t:0,total:S.n*S.R,us:new Set(),ua:new Set(),done:false,it:null,
+  pl:[...Array(S.n)].map((_,i)=>({name:S.names[i].trim()||"Jugador "+(i+1),score:0,ok:0}))};
+ nextQ()}
+function nextQ(){let it;
+ for(let i=0;i<600;i++){it=pick(G)();if(st.us.has(it.s+"|"+it.a))continue;if(!st.ua.has(norm(it.a))||i>400)break}
+ st.us.add(it.s+"|"+it.a);st.ua.add(norm(it.a));st.it=it;st.done=false;game()}
+const blank=it=>{const[l,r]=it.s.split("___");return esc(l)+`<span class="blank"></span>`+(it.b?` <i>(${esc(it.b)})</i>`:"")+esc(r)};
+function game(fb){clearInterval(tmr);
+ const i=st.t%S.n,p=st.pl[i],it=st.it,c=`var(${cols[i]})`;
+ app.innerHTML=`<div class="sb">${st.pl.map((q,j)=>`<div class="chip ${j==i?"on":""}" style="--c:var(${cols[j]})"><span class="dot"></span><b>${esc(q.name)}</b><em>${q.score}</em></div>`).join("")}</div>
+ <main class="card" style="--c:${c}"><div class="meta"><span class="tag">${it.cat}</span><span>Ronda ${Math.floor(st.t/S.n)+1} de ${S.R} · Turno de <b>${esc(p.name)}</b></span></div>
+ ${!fb&&S.T?`<div class="tm" role="timer"><div class="tb"><i id="tf"></i></div><b id="tn">${S.T}</b></div>`:""}<p class="sent">${blank(it)}</p><p class="hint">💡 ${it.hint}</p>
+ ${fb?`<div class="fb ${fb.ok?"ok":"bad"}" role="status"><h3>${fb.to?"⏱ ¡Tiempo agotado! +0 puntos":fb.ok?"¡Correcto! +"+fb.pts+" puntos":"No es esa"}</h3>${fb.ok&&fb.bn?`<p>⚡ Incluye +${fb.bn} de bonus por responder rápido.</p>`:""}${fb.ok||fb.to?"":`<p>Tu respuesta: <b>${esc(fb.u||"(vacía)")}</b></p>`}<p class="full">${esc(it.s.split("___")[0])}<b>${esc(it.a)}</b>${esc(it.s.split("___")[1])}</p><p>${esc(it.ex)}</p><button id="nx">${st.t+1>=st.total?"Ver resultados":"Siguiente jugador"}</button></div>`:
+ `<div class="row"><input id="ans" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Tu respuesta" placeholder="Escribe la palabra que falta"><button id="go">Responder</button></div>`}</main>`;
+ if(fb){$("#nx").onclick=()=>{st.t++;st.t>=st.total?end():nextQ()};$("#nx").focus()}
+ else{const a=$("#ans");a.focus();$("#go").onclick=submit;a.onkeydown=e=>{if(e.key=="Enter")submit()};startTimer()}}
+let tmr;
+function startTimer(){st.t0=Date.now();if(!S.T)return;const f=$("#tf"),n=$("#tn");
+ tmr=setInterval(()=>{const l=S.T-(Date.now()-st.t0)/1000;
+  if(l<=0){clearInterval(tmr);game({ok:false,to:true,u:""});return}
+  f.style.width=l/S.T*100+"%";n.textContent=Math.ceil(l);
+  const lo=l<=5;f.classList.toggle("low",lo);n.classList.toggle("low",lo)},100)}
+function submit(){const u=$("#ans").value,ok=st.it.ac.map(norm).includes(norm(u)),p=st.pl[st.t%S.n];
+ if(norm(u)==="")return $("#ans").focus();
+ let bn=0;if(ok&&S.T&&(Date.now()-st.t0)/1000<=S.T/2)bn=5;clearInterval(tmr);
+ if(ok){p.score+=10+bn;p.ok++;p.bn=(p.bn||0)+bn}game({ok,u:u.trim(),pts:10+bn,bn})}
+function end(){
+ const so=[...st.pl.map((p,i)=>({...p,i}))].sort((a,b)=>b.score-a.score),top=so[0].score,w=so.filter(p=>p.score==top);
+ const ord=so.length>2?[so[1],so[0],so[2],so[3]].filter(Boolean):[so[1],so[0]],H={0:150,1:110,2:80,3:60};
+ app.innerHTML=`<h1>${w.length>1?"¡Empate!":"¡Gana "+esc(w[0].name)+"!"}</h1><p class="lead">${w.length>1?w.map(p=>esc(p.name)).join(" y ")+" comparten el primer lugar.":"Mejor puntaje de la partida."}</p>
+ <div class="card"><div class="podium">${ord.map(p=>{const r=so.indexOf(p);return `<div class="pod" style="--c:var(${cols[p.i]})"><b>${esc(p.name)}</b><div class="bar" style="height:${H[r]}px">${r+1}</div></div>`}).join("")}</div>
+ <table class="tbl"><tr><th>Jugador</th><th>Aciertos</th><th>Bonus</th><th>Puntos</th></tr>${so.map(p=>`<tr><td><span class="dot" style="--c:var(${cols[p.i]});display:inline-block;vertical-align:middle;margin-right:8px"></span>${esc(p.name)}</td><td>${p.ok} de ${S.R}</td><td>${p.bn||0}</td><td><b>${p.score}</b></td></tr>`).join("")}</table></div>
+ <button class="big" onclick="setup()">Jugar de nuevo</button>`}
+setup();
+</script></body></html>
